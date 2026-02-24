@@ -121,3 +121,33 @@ def SFT_pipeline():
 
     merged_model = trainer.model.merge_and_unload()
     merged_model.save_pretrained("./liquid_sft_snli")
+
+# CLI entrypoint
+import argparse
+import inspect
+import sys
+
+def _get_pipelines():
+    return {
+        name.replace('_pipeline', '').lower(): func
+        for name, func in inspect.getmembers(sys.modules[__name__], inspect.isfunction)
+        if name.endswith('_pipeline')
+    }
+
+def _main():
+    pipelines = _get_pipelines()
+    parser = argparse.ArgumentParser(description="Run training pipelines")
+    parser.add_argument(
+        "--pipeline",
+        "-p",
+        required=True,
+        choices=sorted(pipelines.keys()),
+        help="Name of the pipeline to run"
+    )
+    args = parser.parse_args()
+    pipeline_func = pipelines[args.pipeline]
+    print(f"Running {args.pipeline} pipeline...")
+    pipeline_func()
+
+if __name__ == "__main__":
+    _main()
