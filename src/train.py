@@ -25,7 +25,7 @@ class Train:
 
         self.SFT_configs = SFTConfig(
             output_dir="SFT",
-            learning_rate=1e-5,
+            learning_rate=1.5e-4,
             per_device_train_batch_size=8,
             gradient_accumulation_steps=2,
             num_train_epochs=3,
