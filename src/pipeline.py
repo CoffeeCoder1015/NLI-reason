@@ -97,7 +97,7 @@ def SFT_pipeline():
     m = Model("LiquidAI/LFM2.5-1.2B-Base", attn_implementation="flash_attention_2", dtype=torch.bfloat16)
     
     dataset = Data()
-    dataset.subsample(400)
+    dataset.subsample(25_000)
     dataset.build_sft()
 
     config = LoraConfig(
