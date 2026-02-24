@@ -2,7 +2,7 @@
 name = "nli-reason"
 version = "0.1.0"
 description = "NLI reasoning with GRPO/SFT on LiquidAI LFM"
-requires-python = ">=3.12"
+requires-python = "==3.12"
 dependencies = [
     "transformers>=4.40.0",
     "trl[vllm]>=0.8.0",
