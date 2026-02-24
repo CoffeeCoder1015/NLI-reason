@@ -7,7 +7,7 @@ class Train:
             beta=0.008,
             per_device_train_batch_size=8,  # We want to get all generations in one device batch
             gradient_accumulation_steps=2,
-            max_completion_length=256,
+            max_completion_length=512,
             num_generations=8,  # Number of completions to generate for each prompt
             num_train_epochs=3,
             logging_steps=10,
@@ -15,7 +15,7 @@ class Train:
             use_vllm=True,  # Speed up generation
             vllm_mode="colocate",
             vllm_gpu_memory_utilization=0.3,  # Reserve 30% GPU for inference, rest for training
-            vllm_max_model_length=512,  # Ensure this covers prompt + completion
+            vllm_max_model_length=1024,  # Ensure this covers prompt + completion
             # 🔽 ADD THESE
             save_strategy="steps",  # save by step count
             save_steps=500,  # save every 500 optimizer steps
