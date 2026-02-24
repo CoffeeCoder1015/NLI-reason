@@ -70,14 +70,15 @@ def GRPO_pipeline():
     dataset = Data()
     dataset.build_grpo()
 
-    config = LoraConfig(
-        r=16,
-        lora_alpha=32,
-        lora_dropout=0.05,
-        target_modules=["q_proj", "v_proj", "k_proj", "fc_in", "fc_out"],
-        task_type=TaskType.CAUSAL_LM,
-    )
-    model = m.attach_lora(config)
+    # config = LoraConfig(
+    #     r=16,
+    #     lora_alpha=32,
+    #     lora_dropout=0.05,
+    #     target_modules=["q_proj", "v_proj", "k_proj", "fc_in", "fc_out"],
+    #     task_type=TaskType.CAUSAL_LM,
+    # )
+    # model = m.attach_lora(config)
+    model = m.load_with_lora("./SFT/checkpoint-999")
 
     trainer_configs = Train().GRPO_configs
     trainer = GRPOTrainer(
