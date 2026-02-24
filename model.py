@@ -2,7 +2,7 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
 )
-from peft import LoraConfig, get_peft_model 
+from peft import LoraConfig, get_peft_model, PeftModel
 
 class Model:
     def __init__(self,model_id,**kwargs):

@@ -5,3 +5,4 @@ __pycache__/
 .venv/
 flake.*
 launch.bat
+.vscode/

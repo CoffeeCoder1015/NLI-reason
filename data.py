@@ -1,4 +1,38 @@
 from datasets import load_dataset
+from typing import Literal
+import random
+
+NLI_PROMPT_VARIATIONS = [
+    lambda p, h: f"Is the hypothesis entailed, neutral, or contradictory to the premise? Premise: {p} Hypothesis: {h}",
+    lambda p, h: f"What is the relationship between premise and hypothesis? Premise: {p} Hypothesis: {h}",
+    lambda p, h: f"Inference the relationship between the Premise: {p} and Hypothesis: {h}",
+    lambda p, h: f"Classify as entailment, neutral, or contradiction.\nPremise: {p}\nHypothesis: {h}",
+    lambda p, h: f"Premise: {p}\nHypothesis: {h}\nRelationship:",
+]
+
+CLASSIFICATION_MAP = ["entailment", "neutral", "contradiction"]
+
+def build_sft_example(example):
+    prompt_fn = random.choice(NLI_PROMPT_VARIATIONS)
+    prompt = [ {"role":"user","content":prompt_fn(example["premise"], example["hypothesis"])} ]
+
+    label = CLASSIFICATION_MAP[example["label"]]
+    completion = [ {"role":"assistant", "content":label}]
+
+    example["prompt"] = prompt
+    example["completion"] = completion
+    return example
+
+
+def build_NLI_prompt(example):
+    test_example = f"Determine the relationship between the Premise and Hypothesis.\nPremise: {example['premise']}\nHypothesis: {example['hypothesis']}"
+    prompt = f"""A conversation between User and Assistant. The user asks a question, and the Assistant solves
+it. The assistant first thinks about the reasoning process in the mind and then provides the user
+with the answer. The reasoning process and answer are enclosed within <think>...</think>
+and <answer>...</answer> tags, respectively, i.e., <think> reasoning process here </think>
+<answer> answer here </answer>. User: {test_example}. Assistant:"""
+    example["prompt"] = prompt
+    return example
 
 class Data:
     def __init__(self,dataset_name="snli",split="train"):
@@ -10,11 +44,11 @@ class Data:
     def __len__(self):
         return len(self.dataset)
 
-    def build_prompt(self,template_fn,mode: Literal["multi-turn","text-completion"] = "text-completion",tokenizer=None):
-        if mode == "multi-turn":
-            # User provides full chat template, requires tokenizer to format
-            self.dataset = self.dataset.map(lambda x:tokenizer.apply_chat_template(template_fn(x),tokenize=False))
-        else:
-            # User provides prompt 
-            self.dataset = self.dataset.map(template_fn)
-        
+    def build_prompt(self,template_fn):
+        self.dataset = self.dataset.map(template_fn)
+
+    def build_sft(self):
+        self.build_prompt(build_sft_example)
+
+    def build_grpo(self):
+        self.build_prompt(build_NLI_prompt)
