@@ -113,7 +113,7 @@ def SFT_pipeline():
     trainer = SFTTrainer(
         model=model,
         args=trainer_configs,
-        train_dataset=dataset,
+        train_dataset=dataset.dataset,
     )
 
     wandb.init(project="SFT-NLI",entity="messing_around")
