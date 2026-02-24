@@ -50,5 +50,11 @@ class Data:
     def build_sft(self):
         self.build_prompt(build_sft_example)
 
-    def build_grpo(self):
-        self.build_prompt(build_NLI_prompt)
+    def subsample(self, num_samples, seed=42):
+        if isinstance(num_samples, float) and 0 < num_samples <= 1:
+            num_samples = int(len(self.dataset) * num_samples)
+        
+        self.dataset = self.dataset.shuffle(seed=seed).select(range(num_samples))
+
+    def subset(self, num_samples):
+        self.dataset = self.dataset.select(range(num_samples))

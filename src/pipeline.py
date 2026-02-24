@@ -3,6 +3,7 @@ from model import Model
 import re
 from peft import LoraConfig, TaskType
 from trl import GRPOTrainer, SFTTrainer
+import torch
 
 from train import Train
 import wandb
@@ -64,7 +65,7 @@ def reward_func(completions, label, premise, hypothesis, **kwargs):
     return rewards
 
 def GRPO_pipeline():
-    m = Model("LiquidAI/LFM2.5-1.2B-Base", device_map="auto", attn_implementation="flash_attention_2")
+    m = Model("LiquidAI/LFM2.5-1.2B-Base", attn_implementation="flash_attention_2",dtype=torch.bfloat16)
     
     dataset = Data()
     dataset.build_grpo()
@@ -93,9 +94,10 @@ def GRPO_pipeline():
     merged_model.save_pretrained("./liquid_snli")
 
 def SFT_pipeline():
-    m = Model("LiquidAI/LFM2.5-1.2B-Base", device_map="auto", attn_implementation="flash_attention_2")
+    m = Model("LiquidAI/LFM2.5-1.2B-Base", attn_implementation="flash_attention_2", dtype=torch.bfloat16)
     
     dataset = Data()
+    dataset.subsample(400)
     dataset.build_sft()
 
     config = LoraConfig(
