@@ -90,14 +90,10 @@ def GRPO_pipeline():
     wandb.init(project="GRPO",entity="messing_around")
     trainer.train()
 
-    merged_model = trainer.model.merge_and_unload()
-    merged_model.save_pretrained("./liquid_snli")
-
 def SFT_pipeline():
     m = Model("LiquidAI/LFM2.5-1.2B-Base", attn_implementation="flash_attention_2", dtype=torch.bfloat16)
     
     dataset = Data()
-    dataset.subsample(100_000)
     dataset.build_sft()
 
     config = LoraConfig(
@@ -118,9 +114,6 @@ def SFT_pipeline():
 
     wandb.init(project="SFT-NLI",entity="messing_around")
     trainer.train()
-
-    merged_model = trainer.model.merge_and_unload()
-    merged_model.save_pretrained("./liquid_sft_snli")
 
 # CLI entrypoint
 import argparse
