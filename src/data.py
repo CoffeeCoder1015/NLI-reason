@@ -43,12 +43,12 @@ def build_dpo_example(example):
     incorrect_labels = [l for l in all_labels if l != correct_label]
     rejected_label = random.choice(incorrect_labels)
     
-    returned = {}
-    returned["prompt"] = [{"role": "user", "content": prompt_content}]
-    returned["chosen"] = [{"role": "assistant", "content": correct_label}]
-    returned["rejected"] = [{"role": "assistant", "content": rejected_label}]
+    example["prompt"] = [{"role": "user", "content": prompt_content}]
+    example["chosen"] = [{"role": "assistant", "content": correct_label}]
+    example["rejected"] = [{"role": "assistant", "content": rejected_label}]
+    example["label"] = correct_label
     
-    return returned
+    return example
 
 class Data:
     def __init__(self,dataset_name="snli",split="train"):
@@ -70,7 +70,10 @@ class Data:
         self.build_prompt(build_NLI_prompt)
 
     def build_dpo(self):
-        self.build_prompt(build_dpo_example)
+        self.dataset = self.dataset.map(
+            build_dpo_example,
+            remove_columns=self.dataset.column_names
+        )
 
     def subsample(self, num_samples, seed=42):
         if isinstance(num_samples, float) and 0 < num_samples <= 1:
