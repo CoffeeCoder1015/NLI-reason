@@ -28,9 +28,7 @@ def build_NLI_prompt(example):
     test_example = f"Determine the relationship between the Premise and Hypothesis.\nPremise: {example['premise']}\nHypothesis: {example['hypothesis']}"
     prompt = f"""A conversation between User and Assistant. The user asks a question, and the Assistant solves
 it. The assistant first thinks about the reasoning process in the mind and then provides the user
-with the answer. The reasoning process and answer are enclosed within <think>...</think>
-and <answer>...</answer> tags, respectively, i.e., <think> reasoning process here </think>
-<answer> answer here </answer>. User: {test_example}. Assistant:"""
+with the answer. User: {test_example}. Assistant:"""
     example["prompt"] = prompt
     return example
 

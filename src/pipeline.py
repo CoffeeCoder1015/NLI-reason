@@ -4,6 +4,7 @@ import re
 from peft import LoraConfig, TaskType
 from trl import GRPOTrainer, SFTTrainer, DPOTrainer
 import torch
+import string
 
 from train import Train
 import wandb
@@ -64,26 +65,41 @@ def reward_func(completions, label, premise, hypothesis, **kwargs):
 
     return rewards
 
+def simple_reward_func(completions, label,**kwargs):
+    classification_map = ["entailment", "neutral", "contradiction"]
+    word_labels = [classification_map[i] for i in label]
+
+    rewards = []
+    for completion, correct_answer in zip(completions,word_labels):
+        reward = 0.0
+        normalized_completion = completion.lower().strip()
+        normalized_completion = str(normalized_completion.translate(str.maketrans('', '', string.punctuation)))
+        if normalized_completion.endswith(correct_answer):
+            reward = 1.0
+        rewards.append(reward)
+    return rewards
+    
+
 def GRPO_pipeline():
     m = Model("LiquidAI/LFM2.5-1.2B-Base", attn_implementation="flash_attention_2",dtype=torch.bfloat16)
     
     dataset = Data()
     dataset.build_grpo()
 
-    # config = LoraConfig(
-    #     r=16,
-    #     lora_alpha=32,
-    #     lora_dropout=0.05,
-    #     target_modules=["q_proj", "v_proj", "k_proj", "fc_in", "fc_out"],
-    #     task_type=TaskType.CAUSAL_LM,
-    # )
-    # model = m.attach_lora(config)
-    model = m.load_with_lora("./SFT/checkpoint-1000")
+    config = LoraConfig(
+        r=16,
+        lora_alpha=32,
+        lora_dropout=0.05,
+        target_modules=["q_proj", "v_proj", "k_proj", "fc_in", "fc_out"],
+        task_type=TaskType.CAUSAL_LM,
+    )
+    model = m.attach_lora(config)
+    # model = m.load_with_lora("./SFT/checkpoint-1000")
 
     trainer_configs = Train().GRPO_configs
     trainer = GRPOTrainer(
         model=model,
-        reward_funcs=[reward_func],
+        reward_funcs=[simple_reward_func],
         args=trainer_configs,
         train_dataset=dataset.dataset,
     )
