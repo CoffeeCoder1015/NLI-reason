@@ -64,7 +64,7 @@ pipeline_liquid ={
     "eval":extract_first,
     "token_limit":300,
     "batching_size":128,
-    "lora":"../src/SFT/checkpoint-999"
+    "lora":"../src/SFT/checkpoint-1000"
 }
 
 # SELCT: model to run with its configs
