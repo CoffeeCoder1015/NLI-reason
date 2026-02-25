@@ -1,7 +1,7 @@
 from data import Data
 from model import Model
 import re
-from peft import LoraConfig, TaskType
+from peft import LoraConfig, TaskType, AutoPeftModelForCausalLM
 from trl import GRPOTrainer, SFTTrainer, DPOTrainer
 import torch
 import string
@@ -86,15 +86,15 @@ def GRPO_pipeline():
     dataset = Data()
     dataset.build_grpo()
 
-    config = LoraConfig(
-        r=16,
-        lora_alpha=32,
-        lora_dropout=0.05,
-        target_modules=["q_proj", "v_proj", "k_proj", "fc_in", "fc_out"],
-        task_type=TaskType.CAUSAL_LM,
-    )
-    model = m.attach_lora(config)
-    # model = m.load_with_lora("./SFT/checkpoint-1000")
+    # config = LoraConfig(
+    #     r=16,
+    #     lora_alpha=32,
+    #     lora_dropout=0.05,
+    #     target_modules=["q_proj", "v_proj", "k_proj", "fc_in", "fc_out"],
+    #     task_type=TaskType.CAUSAL_LM,
+    # )
+    # model = m.attach_lora(config)
+    model = m.load_with_lora("./SFT/s-checkpoint-1000")
 
     trainer_configs = Train().GRPO_configs
     trainer = GRPOTrainer(
@@ -133,12 +133,21 @@ def SFT_pipeline():
     trainer.train()
 
 def DPO_pipeline():
-    m = Model("LiquidAI/LFM2.5-1.2B-Base", attn_implementation="flash_attention_2", dtype=torch.bfloat16)
+    # m = Model("LiquidAI/LFM2.5-1.2B-Base", attn_implementation="flash_attention_2", dtype=torch.bfloat16)
     
     dataset = Data()
     dataset.build_dpo()
 
-    model = m.load_with_lora("./SFT/checkpoint-1000")
+    # config = LoraConfig(
+    #     r=16,
+    #     lora_alpha=32,
+    #     lora_dropout=0.05,
+    #     target_modules=["q_proj", "v_proj", "k_proj", "fc_in", "fc_out"],
+    #     task_type=TaskType.CAUSAL_LM,
+    # )
+    # model = m.attach_lora(config)
+    # model = m.load_with_lora("./SFT/s-checkpoint-1000")
+    model = AutoPeftModelForCausalLM.from_pretrained("./SFT/s-checkpoint-1000", is_trainable=True)
 
     trainer_configs = Train().DPO_configs
     trainer = DPOTrainer(

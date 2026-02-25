@@ -8,6 +8,8 @@ NLI_PROMPT_VARIATIONS = [
     lambda p, h: f"Inference the relationship between the Premise: {p} and Hypothesis: {h}",
     lambda p, h: f"Classify as entailment, neutral, or contradiction.\nPremise: {p}\nHypothesis: {h}",
     lambda p, h: f"Premise: {p}\nHypothesis: {h}\nRelationship:",
+    lambda p, h :f"Determine the relationship between the Premise and Hypothesis.\nPremise: {p}\nHypothesis: {h}"
+
 ]
 
 CLASSIFICATION_MAP = ["entailment", "neutral", "contradiction"]
@@ -25,10 +27,9 @@ def build_sft_example(example):
 
 
 def build_NLI_prompt(example):
-    test_example = f"Determine the relationship between the Premise and Hypothesis.\nPremise: {example['premise']}\nHypothesis: {example['hypothesis']}"
-    prompt = f"""A conversation between User and Assistant. The user asks a question, and the Assistant solves
-it. The assistant first thinks about the reasoning process in the mind and then provides the user
-with the answer. User: {test_example}. Assistant:"""
+    prompt_fn = random.choice(NLI_PROMPT_VARIATIONS)
+    test_example = prompt_fn(example["premise"],example["hypothesis"])
+    prompt = f"""Thinks about the reasoning process in the mind and then provide the the answer. {test_example}.\nAnswer:"""
     example["prompt"] = prompt
     return example
 

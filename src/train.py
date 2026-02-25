@@ -4,10 +4,10 @@ class Train:
         self.GRPO_configs = GRPOConfig(
             output_dir="GRPO",
             learning_rate=1e-5,
-            beta=0.008,
+            beta=0.001,
             per_device_train_batch_size=8,  # We want to get all generations in one device batch
             gradient_accumulation_steps=2,
-            max_completion_length=512,
+            max_completion_length=1024,
             num_generations=8,  # Number of completions to generate for each prompt
             num_train_epochs=3,
             logging_steps=10,
