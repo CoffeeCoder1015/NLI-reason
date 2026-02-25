@@ -78,7 +78,7 @@ def GRPO_pipeline():
     #     task_type=TaskType.CAUSAL_LM,
     # )
     # model = m.attach_lora(config)
-    model = m.load_with_lora("./SFT/checkpoint-999")
+    model = m.load_with_lora("./SFT/checkpoint-1000")
 
     trainer_configs = Train().GRPO_configs
     trainer = GRPOTrainer(
