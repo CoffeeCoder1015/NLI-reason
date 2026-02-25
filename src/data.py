@@ -34,6 +34,22 @@ and <answer>...</answer> tags, respectively, i.e., <think> reasoning process her
     example["prompt"] = prompt
     return example
 
+def build_dpo_example(example):
+    prompt_fn = random.choice(NLI_PROMPT_VARIATIONS)
+    prompt_content = prompt_fn(example["premise"], example["hypothesis"])
+    
+    correct_label = CLASSIFICATION_MAP[example["label"]]
+    all_labels = ["entailment", "neutral", "contradiction"]
+    incorrect_labels = [l for l in all_labels if l != correct_label]
+    rejected_label = random.choice(incorrect_labels)
+    
+    returned = {}
+    returned["prompt"] = [{"role": "user", "content": prompt_content}]
+    returned["chosen"] = [{"role": "assistant", "content": correct_label}]
+    returned["rejected"] = [{"role": "assistant", "content": rejected_label}]
+    
+    return returned
+
 class Data:
     def __init__(self,dataset_name="snli",split="train"):
         self.dataset = load_dataset(dataset_name, split=split)
@@ -52,6 +68,9 @@ class Data:
         
     def build_grpo(self):
         self.build_prompt(build_NLI_prompt)
+
+    def build_dpo(self):
+        self.build_prompt(build_dpo_example)
 
     def subsample(self, num_samples, seed=42):
         if isinstance(num_samples, float) and 0 < num_samples <= 1:

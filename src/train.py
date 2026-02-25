@@ -1,4 +1,4 @@
-from trl import GRPOConfig, SFTConfig
+from trl import GRPOConfig, SFTConfig, DPOConfig
 class Train:
     def __init__(self):
         self.GRPO_configs = GRPOConfig(
@@ -38,4 +38,22 @@ class Train:
             save_steps=500,  # save every 500 optimizer steps
             save_total_limit=3,  # keep only last 3 checkpoints
             save_safetensors=True,  # recommended
+        )
+
+        self.DPO_configs = DPOConfig(
+            output_dir="DPO",
+            learning_rate=1e-5,
+            beta=0.1,
+            per_device_train_batch_size=8,
+            gradient_accumulation_steps=2,
+            num_train_epochs=3,
+            logging_steps=10,
+            report_to=["wandb"],
+            max_prompt_length=256,
+            max_length=512,
+            use_liger_kernel=True,
+            save_strategy="steps",
+            save_steps=500,
+            save_total_limit=3,
+            save_safetensors=True,
         )

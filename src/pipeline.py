@@ -2,7 +2,7 @@ from data import Data
 from model import Model
 import re
 from peft import LoraConfig, TaskType
-from trl import GRPOTrainer, SFTTrainer
+from trl import GRPOTrainer, SFTTrainer, DPOTrainer
 import torch
 
 from train import Train
@@ -114,6 +114,24 @@ def SFT_pipeline():
     )
 
     wandb.init(project="SFT-NLI",entity="messing_around")
+    trainer.train()
+
+def DPO_pipeline():
+    m = Model("LiquidAI/LFM2.5-1.2B-Base", attn_implementation="flash_attention_2", dtype=torch.bfloat16)
+    
+    dataset = Data()
+    dataset.build_dpo()
+
+    model = m.load_with_lora("./SFT/checkpoint-1000")
+
+    trainer_configs = Train().DPO_configs
+    trainer = DPOTrainer(
+        model=model,
+        args=trainer_configs,
+        train_dataset=dataset.dataset,
+    )
+
+    wandb.init(project="DPO", entity="messing_around")
     trainer.train()
 
 # CLI entrypoint
