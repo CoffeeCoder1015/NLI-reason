@@ -8,8 +8,6 @@ NLI_PROMPT_VARIATIONS = [
     lambda p, h: f"Inference the relationship between the Premise: {p} and Hypothesis: {h}",
     lambda p, h: f"Classify as entailment, neutral, or contradiction.\nPremise: {p}\nHypothesis: {h}",
     lambda p, h: f"Premise: {p}\nHypothesis: {h}\nRelationship:",
-    lambda p, h :f"Determine the relationship between the Premise and Hypothesis.\nPremise: {p}\nHypothesis: {h}"
-
 ]
 
 CLASSIFICATION_MAP = ["entailment", "neutral", "contradiction"]
@@ -25,28 +23,11 @@ def build_sft_example(example):
     example["completion"] = completion
     return example
 
-
 def build_NLI_prompt(example):
     prompt_fn = random.choice(NLI_PROMPT_VARIATIONS)
     test_example = prompt_fn(example["premise"],example["hypothesis"])
     prompt = f"""Thinks about the reasoning process in the mind and then provide the the answer. {test_example}.\nAnswer:"""
     example["prompt"] = prompt
-    return example
-
-def build_dpo_example(example):
-    prompt_fn = random.choice(NLI_PROMPT_VARIATIONS)
-    prompt_content = prompt_fn(example["premise"], example["hypothesis"])
-    
-    correct_label = CLASSIFICATION_MAP[example["label"]]
-    all_labels = ["entailment", "neutral", "contradiction"]
-    incorrect_labels = [l for l in all_labels if l != correct_label]
-    rejected_label = random.choice(incorrect_labels)
-    
-    example["prompt"] = [{"role": "user", "content": prompt_content}]
-    example["chosen"] = [{"role": "assistant", "content": correct_label}]
-    example["rejected"] = [{"role": "assistant", "content": rejected_label}]
-    example["label"] = correct_label
-    
     return example
 
 class Data:
@@ -67,12 +48,6 @@ class Data:
         
     def build_grpo(self):
         self.build_prompt(build_NLI_prompt)
-
-    def build_dpo(self):
-        self.dataset = self.dataset.map(
-            build_dpo_example,
-            remove_columns=self.dataset.column_names
-        )
 
     def subsample(self, num_samples, seed=42):
         if isinstance(num_samples, float) and 0 < num_samples <= 1:
