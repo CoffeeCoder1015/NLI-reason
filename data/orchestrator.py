@@ -5,13 +5,24 @@ import os
 import time
 import torch
 from datasets import load_dataset
+mp.set_start_method("spawn", force=True)
 
 from generator import pipeline_config
 
 def build_explain_prompt(example):
     premise = example['premise']
     hypothesis = example['hypothesis']
-    content = f"Explain step-by-step how to determine the NLI relationship between:\nPremise: {premise}\nHypothesis: {hypothesis}"
+    content = f"""Explain step-by-step how to determine the NLI relationship between:
+
+The three possible NLI relationships are:
+- Entailment: the hypothesis is definitely true given the premise
+- Neutral: the hypothesis could be true, but is not necessarily true given the premise
+- Contradiction: the hypothesis is definitely false given the premise
+The answer is guaranteed to be one of the three.
+
+Premise: {premise}
+Hypothesis: {hypothesis}
+"""
     prompt = [{"role": "user", "content": content}]
     example["prompt"] = prompt
     return example
