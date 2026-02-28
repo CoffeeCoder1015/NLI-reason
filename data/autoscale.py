@@ -16,7 +16,7 @@ def get_batch_size(pipe, prompts, token_limit, local_rank, memory_buffer_ratio=0
     
     torch.cuda.reset_peak_memory_stats(local_rank)
     warmup_batch = test_samples[:1]
-    _ = pipe(warmup_batch, max_new_tokens=token_limit, batch_size=1)
+    _ = pipe(warmup_batch, max_new_tokens=1, batch_size=1)
     warmup_memory = torch.cuda.max_memory_allocated(local_rank) / (1024**3)
     
     torch.cuda.reset_peak_memory_stats(local_rank)
