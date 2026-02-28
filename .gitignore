@@ -6,3 +6,4 @@ __pycache__/
 flake.*
 launch.bat
 .vscode/
+uv.lock
