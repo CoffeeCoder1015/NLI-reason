@@ -55,7 +55,7 @@ def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="liquid",
+        default="qwen",
         choices=list(pipeline_config.keys()),
         help="Model pipeline to use"
     )
@@ -94,7 +94,7 @@ def main():
     print(f"Total SNLI train samples: {total_samples}")
 
     if args.from_tail:
-        subset_size = 50_000
+        subset_size = 10_000
         start_idx = max(0, total_samples - subset_size)
         dataset = dataset.select(range(start_idx, total_samples))
         print(f"Using tail end: samples {start_idx} to {total_samples} ({len(dataset)} samples)")
